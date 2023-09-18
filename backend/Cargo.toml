@@ -12,5 +12,8 @@ shuttle-runtime = "0.25.0"
 shuttle-shared-db = { version = "0.25.0", features = ["postgres", "postgres-rustls"] }
 shuttle-static-folder = "0.25.0"
 tokio = "1.32.0"
-sqlx = "0.7.1"
-uuid7 = "0.7.1"
+sqlx = { version = "0.7.1", features = ["macros", "uuid"] }
+uuid7 = { version = "0.7.1", features = ["uuid"] }
+serde = { version = "1.0.188", features = ["derive"] }
+tower = { version = "0.4.13", features = ["util"] }
+axum-macros = "0.3.8"

@@ -169,6 +169,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "axum-macros"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cdca6a10ecad987bda04e95606ef85a5417dcaac1a78455242d72e031e2b6b62"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.31",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -531,9 +543,9 @@ checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
 
 [[package]]
 name = "fstr"
-version = "0.2.5"
+version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdc15abb65302e50ec339d87ecea68713ce58dbd17e8749986a4acee3b42fb21"
+checksum = "51f54b9e4a4ca632fc73d8268629de27b90f8e7b2574aa8857a7a7e96e652a25"
 
 [[package]]
 name = "futures"
@@ -2209,6 +2221,7 @@ dependencies = [
  "tokio-stream",
  "tracing",
  "url",
+ "uuid",
  "webpki-roots",
 ]
 
@@ -2290,6 +2303,7 @@ dependencies = [
  "stringprep",
  "thiserror",
  "tracing",
+ "uuid",
  "whoami",
 ]
 
@@ -2329,6 +2343,7 @@ dependencies = [
  "stringprep",
  "thiserror",
  "tracing",
+ "uuid",
  "whoami",
 ]
 
@@ -2352,6 +2367,7 @@ dependencies = [
  "sqlx-core",
  "tracing",
  "url",
+ "uuid",
 ]
 
 [[package]]
@@ -2359,12 +2375,15 @@ name = "static-next-server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "axum-macros",
+ "serde",
  "shuttle-axum",
  "shuttle-runtime",
  "shuttle-shared-db",
  "shuttle-static-folder",
  "sqlx",
  "tokio",
+ "tower",
  "tower-http",
  "uuid7",
 ]
@@ -2880,6 +2899,7 @@ dependencies = [
  "fstr",
  "rand",
  "rand_chacha",
+ "uuid",
 ]
 
 [[package]]
