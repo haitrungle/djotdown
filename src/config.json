@@ -1,0 +1,6 @@
+{
+  "stylesheets": [
+    "tailwind-typography.css",
+    "custom.css"
+  ]
+}

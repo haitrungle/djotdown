@@ -1,47 +1,60 @@
 import Head from 'next/head'
-import CodeMirror, { ViewUpdate } from '@uiw/react-codemirror'
+import CodeMirror from '@uiw/react-codemirror'
 import { EditorView } from "@codemirror/view"
-import { useState } from 'react'
-import * as djot from '@djot/djot'
+import { useEffect, useState } from 'react'
 import { AlertCircle } from 'lucide-react'
+import { useLocalStorage } from 'usehooks-ts'
+import { Warning } from '@djot/djot/types/options'
 
 import Preview from '@/components/Preview'
 import { Button } from '@/components/ui/button'
-import { Warning } from '@djot/djot/types/options'
+import { renderHtmlWithDjotExample, toFullHtml } from '@/lib/render'
+
+import { stylesheets } from '@/config.json'
 
 export default function Home() {
+  const [content, setContent] = useLocalStorage('content', '')
   const [html, setHtml] = useState('')
-  const [uuid, setUuid] = useState('')
   const [warning, setWarning] = useState<Warning | null>(null)
-  const onChange = (value: string, viewUpdate: ViewUpdate) => {
+  const [uuid, setUuid] = useState<string | null>('')
+
+  const setHtmlFromContent = (content: string) => {
     let warned = false;
     const warnHandler = (w: Warning) => {
       setWarning(w)
       warned = true
     }
-    const ast = djot.parse(value, {
-      sourcePositions: true,
-      warn: warnHandler
-    })
-    const markup = djot.renderHTML(ast, {
-      warn: warnHandler
-    })
+    const html = renderHtmlWithDjotExample(content, warnHandler)
     if (!warned) setWarning(null)
-    setHtml(toHtml(markup))
-  };
+    setHtml(html)
+  }
+
+  const onCodeChange = (content: string) => {
+    setContent(content)
+    setHtmlFromContent(content)
+  }
 
   const onSubmit = async () => {
     const response = await fetch('/new-djot', {
       method: 'POST',
-      body: html,
+      body: toFullHtml(html),
     })
 
-    const data = await response.text()
-    console.log(`Response: ${data}`)
-    setUuid(data)
+    if (200 <= response.status && response.status < 300) {
+      const data = await response.text()
+      setUuid(data)
+    } else {
+      setUuid(null)
+    }
   }
 
   const url = () => `/djots/${uuid}`
+
+  // Effect run once after mount to render content loaded
+  // from local storage
+  useEffect(() => {
+    setHtmlFromContent(content)
+  }, [])
 
   return (
     <>
@@ -56,47 +69,38 @@ export default function Home() {
           <div className="flex items-center gap-2">
             {warning
               ? <>
-                <p className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="h-4 w-4 min-w-min" />
-                  Warning on line {warning.sourceLoc?.line}:
-                </p>
-                <p>{warning.message}</p>
-              </>
+                  <p className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="h-4 w-4 min-w-min" />
+                    Warning on line {warning.sourceLoc?.line}:
+                  </p>
+                  <p>{warning.message}</p>
+                </>
               : <p>No warnings thus far</p>
             }
           </div>
         </div>
         <div className="mx-4 py-4 flex justify-between items-center gap-4 border-b-2">
-          <p>Your djot is live at <a href={url()}>{url()}</a></p>
           <Button onClick={onSubmit}>Djot&nbsp;it</Button>
+          {
+            uuid === ''
+              ? null
+              : uuid
+                ? <p>Your djot is live at <a className="font-medium	underline" href={url()}>{url()}</a></p>
+                : <p>Error submitting</p>
+          }
         </div>
         <div className="h-full p-4">
           <CodeMirror
-            value=""
+            value={content}
             placeholder="Write your Djot here..."
             height="100%"
             className="h-full text-lg border-2 rounded-xl overflow-clip"
-            onChange={onChange}
+            onChange={onCodeChange}
             extensions={[EditorView.lineWrapping]}
           />
         </div>
-        <Preview className="h-full w-full p-4 typography" html={html} />
+        <Preview className="h-full w-full p-4 typography" html={html} stylesheets={stylesheets} />
       </main>
     </>
   )
-}
-
-function toHtml(markup: string) {
-  return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Djot</title>
-    <link rel="stylesheet" href="/bamboo.css">
-  </head>
-  <body>
-    ${markup}
-  </body>
-</html>`
 }

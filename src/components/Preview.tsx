@@ -1,19 +1,20 @@
 import { HTMLAttributes } from "react"
 import root from 'react-shadow';
 
-type Props = { html: string } & HTMLAttributes<HTMLDivElement>;
+type Props = {
+  html: string;
+  stylesheets: string[];
+} & HTMLAttributes<HTMLDivElement>;
 
-export default function Preview({ html, ...props }: Props) {
-  const markup = substringBetween(html, '<body>', '</body>')
+export default function Preview({ html, stylesheets, ...props }: Props) {
   return (
     <root.div {...props}>
-      <link rel="stylesheet" href="/bamboo.css" />
-      <body dangerouslySetInnerHTML={{__html: markup}} style={{ padding: 0 }}></body>
+      {
+        stylesheets.map((s) => (
+          <link key={s} rel="stylesheet" href={`/${s}`} />)
+        )
+      }
+      <body dangerouslySetInnerHTML={{__html: html}} style={{ padding: 0 }}></body>
     </root.div>
   )
-}
-
-function substringBetween(str: string, a: string, b: string) {
-  const start = str.indexOf(a) + a.length
-  return str.substring(start, str.indexOf(b, start))
 }

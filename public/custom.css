@@ -1,0 +1,37 @@
+body {
+  max-width: 100ch;
+  margin: 0 auto;
+  padding: 6rem 1rem;
+}
+
+.djot-example {
+  display: flex;
+  border-radius: 0.375rem;
+  overflow: clip;
+}
+
+@media (max-width: 768px) {
+  .djot-example {
+    flex-direction: column;
+  }
+}
+
+.djot-example pre {
+  flex: 1;
+  margin: 0;
+  border-radius: 0;
+}
+
+.djot-example pre code {
+  overflow: visible;
+  overflow-wrap: normal;
+}
+
+.djot-example pre:last-child {
+  color: var(--tw-prose-body);
+  background-color: var(--tw-prose-hr);
+}
+
+code {
+  white-space: pre-wrap;
+}
