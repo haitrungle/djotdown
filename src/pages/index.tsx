@@ -2,9 +2,9 @@ import Head from 'next/head'
 import CodeMirror from '@uiw/react-codemirror'
 import { EditorView } from "@codemirror/view"
 import { useEffect, useState } from 'react'
-import { AlertCircle } from 'lucide-react'
-import { useLocalStorage } from 'usehooks-ts'
+import { useLocalStorage, useMediaQuery } from 'usehooks-ts'
 import { Warning } from '@djot/djot/types/options'
+import { WarningCircle, Eye, PenNib } from '@phosphor-icons/react'
 
 import Preview from '@/components/Preview'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,14 @@ export default function Home() {
   const [html, setHtml] = useState('')
   const [warning, setWarning] = useState<Warning | null>(null)
   const [uuid, setUuid] = useState<string | null>('')
+  const [displayPreview, setDisplayPreview] = useState<'hidden' | 'flex'>('hidden')
+  const md = useMediaQuery('(min-width: 768px)')
+
+  const toggleDisplay = (current: "hidden" | "flex") => {
+    return current === 'hidden' ? 'flex' : 'hidden'
+  }
+
+  const togglePreview = () => setDisplayPreview(toggleDisplay)
 
   const setHtmlFromContent = (content: string) => {
     let warned = false;
@@ -64,42 +72,55 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-screen h-screen overflow-auto grid grid-cols-2 grid-rows-[max-content_1fr]">
-        <div className="mx-4 py-4 flex justify-between items-center gap-4 border-b-2">
-          <div className="flex items-center gap-2">
-            {warning
-              ? <>
-                  <p className="flex items-center gap-2 text-destructive">
-                    <AlertCircle className="h-4 w-4 min-w-min" />
-                    Warning on line {warning.sourceLoc?.line}:
+      <main className="w-screen h-screen overflow-auto flex">
+        <div className={`${toggleDisplay(displayPreview)} w-full md:w-1/2 md:flex flex-col`}>
+          <div className="min-h-[5rem] mx-4 flex justify-between items-center gap-2 border-b-2">
+              {warning
+                ? <p>
+                    <span className="flex items-center gap-2 text-destructive">
+                      <WarningCircle size={20} weight="light" />
+                      Warning on line {warning.sourceLoc?.line}:
+                    </span> {warning.message}
                   </p>
-                  <p>{warning.message}</p>
-                </>
-              : <p>No warnings thus far</p>
-            }
+                : <p>No warnings thus far</p>
+              }
+              <Button variant="outline" size="icon" className="md:hidden" title="Preview Djot" onClick={togglePreview}>
+                <Eye size={28} weight="light" />
+              </Button>
+          </div>
+          <div className="h-full p-4">
+            <CodeMirror
+              value={content}
+              placeholder="Write your Djot here..."
+              height="100%"
+              className="h-fit text-lg md:border-2 md:rounded-xl md:overflow-clip"
+              onChange={onCodeChange}
+              extensions={[EditorView.lineWrapping]}
+              basicSetup={{
+                lineNumbers: md,
+                foldGutter: false,
+              }}
+            />
           </div>
         </div>
-        <div className="mx-4 py-4 flex justify-between items-center gap-4 border-b-2">
-          <Button onClick={onSubmit}>Djot&nbsp;it</Button>
-          {
-            uuid === ''
-              ? null
-              : uuid
-                ? <p>Your djot is live at <a className="font-medium	underline" href={url()}>{url()}</a></p>
-                : <p>Error submitting</p>
-          }
+        <div className={`${displayPreview} w-full md:w-1/2 md:flex flex-col`}>
+          <div className="min-h-[5rem] mx-4 py-4 flex justify-between items-center gap-4 border-b-2">
+            <div className="flex items-center gap-4">
+              <Button onClick={onSubmit}>Djot&nbsp;it</Button>
+              {
+                uuid === ''
+                  ? null
+                  : uuid
+                    ? <p>Your djot is live at <a className="font-medium	underline" href={url()} target="_blank">{url()}</a></p>
+                    : <p>Error submitting</p>
+              }
+            </div>
+            <Button variant="outline" size="icon" className="md:hidden" title="Preview Djot" onClick={togglePreview}>
+              <PenNib size={28} weight="light" />
+            </Button>
+          </div>
+          <Preview className="h-fit w-full p-4 typography" html={html} stylesheets={stylesheets} />
         </div>
-        <div className="h-full p-4">
-          <CodeMirror
-            value={content}
-            placeholder="Write your Djot here..."
-            height="100%"
-            className="h-full text-lg border-2 rounded-xl overflow-clip"
-            onChange={onCodeChange}
-            extensions={[EditorView.lineWrapping]}
-          />
-        </div>
-        <Preview className="h-full w-full p-4 typography" html={html} stylesheets={stylesheets} />
       </main>
     </>
   )

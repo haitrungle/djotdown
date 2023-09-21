@@ -61,13 +61,11 @@ non-marked closers can only match non-marked openers (so, for example,
 `{_hi_)` doesn’t produce emphasis).
 
 When there are multiple openers that might be matched with a given
-closer, the closest one is used. For example,
+closer, the closest one is used. For example:
 
 ```djot
 *not strong *strong*
 ```
-
-produces *not strong *strong*
 
 
 ### Ordinary text
