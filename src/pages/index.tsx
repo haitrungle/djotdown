@@ -93,7 +93,7 @@ export default function Home() {
               value={content}
               placeholder="Write your Djot here..."
               height="100%"
-              className="h-fit text-lg md:border-2 md:rounded-xl md:overflow-clip"
+              className="h-full text-lg md:border-2 md:rounded-xl md:overflow-clip"
               onChange={onCodeChange}
               extensions={[EditorView.lineWrapping]}
               basicSetup={{
